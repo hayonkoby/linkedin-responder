@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinkedIn Responder — יועץ עסקי B2B</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      padding: 24px 16px;
+      color: #1a1a2e;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      color: #0a66c2;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #555;
+      font-size: 1rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      width: 100%;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.2s;
+      direction: rtl;
+      line-height: 1.6;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #0a66c2;
+    }
+
+    .tone-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .tone-option {
+      position: relative;
+    }
+
+    .tone-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+    }
+
+    .tone-option label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .tone-option input:checked + label {
+      border-color: #0a66c2;
+      background: #e8f0fe;
+      color: #0a66c2;
+    }
+
+    .tone-option label:hover {
+      border-color: #0a66c2;
+      background: #f5f8ff;
+    }
+
+    .tone-icon { font-size: 1.2rem; }
+
+    button#generateBtn {
+      width: 100%;
+      padding: 16px;
+      background: #0a66c2;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 20px;
+    }
+
+    button#generateBtn:hover:not(:disabled) {
+      background: #084e96;
+    }
+
+    button#generateBtn:active:not(:disabled) {
+      transform: scale(0.99);
+    }
+
+    button#generateBtn:disabled {
+      background: #a0b4c8;
+      cursor: not-allowed;
+    }
+
+    .result-card {
+      display: none;
+    }
+
+    .result-card.visible {
+      display: block;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .result-header label {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    #copyBtn {
+      padding: 8px 16px;
+      background: #f0f4f8;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    #copyBtn:hover { background: #e0e8f0; }
+    #copyBtn.copied { background: #d4edda; border-color: #28a745; color: #28a745; }
+
+    #responseText {
+      min-height: 120px;
+      background: #f9fafb;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 16px;
+      font-size: 1rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      direction: rtl;
+    }
+
+    .loading-dots::after {
+      content: '';
+      animation: dots 1.5s steps(3, end) infinite;
+    }
+
+    @keyframes dots {
+      0%, 25% { content: ''; }
+      50% { content: '.'; }
+      75% { content: '..'; }
+      100% { content: '...'; }
+    }
+
+    .error { color: #c0392b; font-weight: 500; }
+
+    footer {
+      text-align: center;
+      color: #888;
+      font-size: 0.8rem;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💼 LinkedIn Responder</h1>
+      <p>יועץ ומאמן עסקי B2B | חיבור בין עסק למנטל-רגשי</p>
+    </header>
+
+    <div class="card">
+      <label for="postInput">📋 פוסט מלינקדאין</label>
+      <textarea id="postInput" rows="8" placeholder="הדבק כאן את הפוסט מלינקדאין..."></textarea>
+
+      <label style="margin-top: 20px;">🎯 סגנון התגובה</label>
+      <div class="tone-grid">
+        <div class="tone-option">
+          <input type="radio" name="tone" id="t-standard" value="standard" checked />
+          <label for="t-standard"><span class="tone-icon">⚖️</span> סטנדרטי</label>
+        </div>
+        <div class="tone-option">
+          <input type="radio" name="tone" id="t-emotional" value="emotional" />
+          <label for="t-emotional"><span class="tone-icon">💛</span> מנטלי-רגשי</label>
+        </div>
+        <div class="tone-option">
+          <input type="radio" name="tone" id="t-strategic" value="strategic" />
+          <label for="t-strategic"><span class="tone-icon">🎯</span> אסטרטגי וחד</label>
+        </div>
+        <div class="tone-option">
+          <input type="radio" name="tone" id="t-question" value="question" />
+          <label for="t-question"><span class="tone-icon">❓</span> שואל ומאתגר</label>
+        </div>
+      </div>
+
+      <button id="generateBtn" onclick="generate()">✨ צור תגובה</button>
+    </div>
+
+    <div class="card result-card" id="resultCard">
+      <div class="result-header">
+        <label>💬 התגובה שלך ללינקדאין</label>
+        <button id="copyBtn" onclick="copyResponse()">📋 העתק</button>
+      </div>
+      <div id="responseText"></div>
+    </div>
+
+    <footer>מבוסס על Claude Opus 4.6 by Anthropic</footer>
+  </div>
+
+  <script>
+    async function generate() {
+      const post = document.getElementById('postInput').value.trim();
+      if (!post) {
+        alert('אנא הכנס את טקסט הפוסט');
+        return;
+      }
+
+      const tone = document.querySelector('input[name="tone"]:checked').value;
+      const btn = document.getElementById('generateBtn');
+      const resultCard = document.getElementById('resultCard');
+      const responseText = document.getElementById('responseText');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-dots">מייצר תגובה</span>';
+      resultCard.classList.add('visible');
+      responseText.innerHTML = '<span class="loading-dots">חושב</span>';
+
+      try {
+        const res = await fetch('/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ post, tone })
+        });
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        responseText.textContent = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.error) {
+                responseText.innerHTML = `<span class="error">❌ ${data.error}</span>`;
+                break;
+              }
+              if (data.text) {
+                fullText += data.text;
+                responseText.textContent = fullText;
+              }
+            } catch {}
+          }
+        }
+      } catch (err) {
+        responseText.innerHTML = `<span class="error">❌ שגיאת חיבור: ${err.message}</span>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '✨ צור תגובה נוספת';
+      }
+    }
+
+    function copyResponse() {
+      const text = document.getElementById('responseText').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '✅ הועתק!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = '📋 העתק';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Submit on Ctrl+Enter
+    document.getElementById('postInput').addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Enter') generate();
+    });
+  </script>
+</body>
+</html>
