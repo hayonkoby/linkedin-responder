@@ -173,6 +173,25 @@
     #copyBtn:hover { background: #e0e8f0; }
     #copyBtn.copied { background: #d4edda; border-color: #28a745; color: #28a745; }
 
+    #clearBtn {
+      width: 100%;
+      padding: 12px;
+      background: white;
+      color: #888;
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: all 0.2s;
+    }
+
+    #clearBtn:hover {
+      border-color: #0a66c2;
+      color: #0a66c2;
+      background: #f5f8ff;
+    }
+
     #responseText {
       min-height: 120px;
       background: #f9fafb;
@@ -247,6 +266,7 @@
         <button id="copyBtn" onclick="copyResponse()">📋 העתק</button>
       </div>
       <div id="responseText"></div>
+      <button id="clearBtn" onclick="clearAll()">🔄 נקה והתחל פוסט חדש</button>
     </div>
 
     <footer>מבוסס על Claude Opus 4.6 by Anthropic</footer>
@@ -323,6 +343,15 @@
           btn.classList.remove('copied');
         }, 2000);
       });
+    }
+
+    function clearAll() {
+      document.getElementById('postInput').value = '';
+      document.getElementById('responseText').textContent = '';
+      document.getElementById('resultCard').classList.remove('visible');
+      document.getElementById('generateBtn').innerHTML = '✨ צור תגובה';
+      document.querySelector('input[name="tone"][value="standard"]').checked = true;
+      document.getElementById('postInput').focus();
     }
 
     // Submit on Ctrl+Enter
